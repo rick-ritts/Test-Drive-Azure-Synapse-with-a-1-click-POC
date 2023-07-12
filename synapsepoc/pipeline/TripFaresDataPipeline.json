@@ -144,7 +144,13 @@
 				"type": "ExecuteDataFlow",
 				"dependsOn": [
 					{
-						"activity": "Create Schema If Does Not Exists",
+						"activity": "IngestTripDataIntoADLS",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "IngestTripFaresDataIntoADLS",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -215,9 +221,8 @@
 				}
 			},
 			{
-				"name": "Create Schema If Does Not Exists",
-				"description": "Creates the schema inside the SQL dedicated pool. Shema name comes from the pipeline parameter 'SchemaName'.",
-				"type": "Lookup",
+				"name": "Copy data Trips Data",
+				"type": "Copy",
 				"dependsOn": [
 					{
 						"activity": "IngestTripDataIntoADLS",
@@ -227,60 +232,6 @@
 					},
 					{
 						"activity": "IngestTripFaresDataIntoADLS",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"timeout": "0.00:05:00",
-					"retry": 3,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"source": {
-						"type": "SqlDWSource",
-						"sqlReaderQuery": {
-							"value": "IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = '@{pipeline().parameters.SchemaName}')\nBEGIN\nEXEC('CREATE SCHEMA @{pipeline().parameters.SchemaName}')\n    SELECT COUNT(*) FROM sys.schemas WHERE name = '@{pipeline().parameters.SchemaName}'\nEND\nELSE\nBEGIN\n    SELECT COUNT(*) FROM sys.schemas WHERE name = '@{pipeline().parameters.SchemaName}'\nEND",
-							"type": "Expression"
-						},
-						"queryTimeout": "02:00:00",
-						"partitionOption": "None"
-					},
-					"dataset": {
-						"referenceName": "azureSynapseAnalyticsSchema",
-						"type": "DatasetReference",
-						"parameters": {
-							"SynapseWorkspaceName": {
-								"value": "@pipeline().parameters.SynapseWorkspaceName",
-								"type": "Expression"
-							},
-							"SQLDedicatedPoolName": {
-								"value": "@pipeline().parameters.SQLDedicatedPoolName",
-								"type": "Expression"
-							},
-							"keyVaultName": {
-								"value": "@pipeline().parameters.KeyVaultName",
-								"type": "Expression"
-							},
-							"SQLLoginUsername": {
-								"value": "@pipeline().parameters.SQLLoginUsername",
-								"type": "Expression"
-							}
-						}
-					},
-					"firstRowOnly": false
-				}
-			},
-			{
-				"name": "Copy data Trips Data",
-				"type": "Copy",
-				"dependsOn": [
-					{
-						"activity": "Create Schema If Does Not Exists",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -371,7 +322,13 @@
 				"type": "Copy",
 				"dependsOn": [
 					{
-						"activity": "Create Schema If Does Not Exists",
+						"activity": "IngestTripDataIntoADLS",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "IngestTripFaresDataIntoADLS",
 						"dependencyConditions": [
 							"Succeeded"
 						]
