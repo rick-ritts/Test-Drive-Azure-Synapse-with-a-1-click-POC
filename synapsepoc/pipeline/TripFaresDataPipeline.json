@@ -74,7 +74,14 @@
 				"name": "IngestTripFaresDataIntoADLS",
 				"description": "Copies the trip fare data csv file from the git repo and loads it into the ADLS.",
 				"type": "Copy",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "IngestTripDataIntoADLS",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.00:10:00",
 					"retry": 3,
@@ -143,12 +150,6 @@
 				"description": "Reads the raw data from both CSV files inside the ADLS, performs the desired transformations (inner join and aggregation) and writes the transformed data into the synapse SQL pool.",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [
-					{
-						"activity": "IngestTripDataIntoADLS",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					},
 					{
 						"activity": "IngestTripFaresDataIntoADLS",
 						"dependencyConditions": [
@@ -225,13 +226,7 @@
 				"type": "Copy",
 				"dependsOn": [
 					{
-						"activity": "IngestTripDataIntoADLS",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					},
-					{
-						"activity": "IngestTripFaresDataIntoADLS",
+						"activity": "JoinAndAggregateData",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -258,7 +253,7 @@
 					},
 					"sink": {
 						"type": "SqlDWSink",
-						"preCopyScript": "IF (EXISTS (SELECT *\n  FROM INFORMATION_SCHEMA.TABLES\n  WHERE TABLE_SCHEMA = 'dbo'\n  AND TABLE_NAME = 'TripsData'))\nBEGIN \n   Truncate table TripsData;\nEnd\n",
+						"preCopyScript": "DROP TABLE IF EXISTS tripFares.TripsData",
 						"allowPolyBase": true,
 						"polyBaseSettings": {
 							"rejectValue": 0,
@@ -322,13 +317,7 @@
 				"type": "Copy",
 				"dependsOn": [
 					{
-						"activity": "IngestTripDataIntoADLS",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					},
-					{
-						"activity": "IngestTripFaresDataIntoADLS",
+						"activity": "Copy data Trips Data",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -355,7 +344,7 @@
 					},
 					"sink": {
 						"type": "SqlDWSink",
-						"preCopyScript": "IF (EXISTS (SELECT *\n  FROM INFORMATION_SCHEMA.TABLES\n  WHERE TABLE_SCHEMA = 'dbo'\n  AND TABLE_NAME = 'FaresData'))\nBEGIN \n   Truncate table FaresData;\nEnd\n",
+						"preCopyScript": "DROP TABLE IF EXISTS tripFares.FaresData",
 						"allowPolyBase": true,
 						"polyBaseSettings": {
 							"rejectValue": 0,
