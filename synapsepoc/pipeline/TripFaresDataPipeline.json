@@ -244,7 +244,7 @@
 					"source": {
 						"type": "SqlDWSource",
 						"sqlReaderQuery": {
-							"value": "IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = '@{pipeline().parameters.SchemaName}')\nBEGIN\nEXEC('CREATE SCHEMA @{pipeline().parameters.SchemaName}')\nselect Count(*) from sys.symmetric_keys;\nEND\nELSE\nBEGIN\n    select Count(*) from sys.symmetric_keys;\nEND",
+							"value": "IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = '@{pipeline().parameters.SchemaName}')\nBEGIN\nEXEC('CREATE SCHEMA @{pipeline().parameters.SchemaName}')\n    SELECT COUNT(*) FROM sys.schemas WHERE name = '@{pipeline().parameters.SchemaName}'\nEND\nELSE\nBEGIN\n    SELECT COUNT(*) FROM sys.schemas WHERE name = '@{pipeline().parameters.SchemaName}'\nEND",
 							"type": "Expression"
 						},
 						"queryTimeout": "02:00:00",
