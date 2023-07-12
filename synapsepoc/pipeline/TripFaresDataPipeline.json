@@ -253,7 +253,7 @@
 					},
 					"sink": {
 						"type": "SqlDWSink",
-						"preCopyScript": "IF EXISTS (SELECT 1 FROM sys.objects WHERE [object_id] = OBJECT_ID('TripData') AND [schema_id] = 5)\nDROP TABLE tripFares.TripData",
+						"preCopyScript": "IF EXISTS (SELECT 1 FROM sys.objects WHERE [object_id] = OBJECT_ID('TripData') AND [schema_id] = 5)\nDROP TABLE tripFares.TripsData",
 						"allowPolyBase": true,
 						"polyBaseSettings": {
 							"rejectValue": 0,
